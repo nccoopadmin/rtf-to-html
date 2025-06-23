@@ -1,19 +1,21 @@
 const express = require('express');
 const multer = require('multer');
-const rtfToHTML = require('./rtf-to-html/rtf-to-html'); // adjust path if needed
+const rtfToHTML = require('rtf-to-html'); // ✅ using the NPM package
 
 const app = express();
 const upload = multer();
 
-app.post('/convert', upload.single('file'), async (req, res) => {
+app.post('/convert', upload.single('file'), (req, res) => {
   try {
-    const html = rtfToHTML.fromString(req.file.buffer.toString('utf8'));
+    const rtf = req.file.buffer.toString('utf8');
+    const html = rtfToHTML.fromString(rtf); // uses the library
     res.json({ html });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.toString() });
+    res.status(500).json({ error: err.message });
   }
 });
 
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log(`RTF→HTML API listening on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`RTF to HTML API running on port ${PORT}`);
+});
